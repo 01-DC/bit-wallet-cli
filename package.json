@@ -1,0 +1,25 @@
+{
+  "name": "bit-wallet-cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/01-DC/bit-wallet-cli.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/01-DC/bit-wallet-cli/issues"
+  },
+  "homepage": "https://github.com/01-DC/bit-wallet-cli#readme",
+  "dependencies": {
+    "bip39": "^3.1.0",
+    "bitcoinjs-lib": "^6.1.3",
+    "sqlite3": "^5.1.6"
+  }
+}
