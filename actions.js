@@ -3,7 +3,7 @@ const bitcoin = require("bitcoinjs-lib")
 const hdkey = require("hdkey")
 const axios = require("axios")
 
-export const createWallet = async () => {
+const createWallet = async (db) => {
 	const mnemonic = bip39.generateMnemonic()
 	const seed = await bip39.mnemonicToSeed(mnemonic)
 	const root = hdkey.fromMasterSeed(seed, bitcoin.networks.testnet)
@@ -26,7 +26,7 @@ export const createWallet = async () => {
 	console.log(`Mnemonic: ${mnemonic}`)
 }
 
-export const importWallet = async (mnemonic) => {
+const importWallet = async (db, mnemonic) => {
 	if (!bip39.validateMnemonic(mnemonic)) {
 		console.log("Invalid mnemonic!")
 		return
@@ -38,21 +38,27 @@ export const importWallet = async (mnemonic) => {
 		pubkey: addrNode.publicKey,
 		network: bitcoin.networks.testnet,
 	}).address
-	await db.run("INSERT INTO wallets (mnemonic, address) VALUES (?, ?)", [
-		mnemonic,
-		address,
-	])
+	await db.run(
+		"INSERT INTO wallets (mnemonic, address) VALUES (?, ?)",
+		[mnemonic, address],
+		function (err) {
+			if (err) console.log(err)
+			else {
+				console.log(`New Wallet imported with ID: ${this.lastID}`)
+			}
+		}
+	)
 	console.log(`Imported Wallet Address: ${address}`)
 }
 
-export const listWallets = async () => {
+const listWallets = async (db) => {
 	db.all("SELECT * FROM wallets", [], (err, rows) => {
 		if (err) console.log(err)
 		else console.log(rows)
 	})
 }
 
-export const getTestnetBalance = async (address) => {
+const getBalance = async (address) => {
 	try {
 		const response = await axios.get(
 			`https://api.blockcypher.com/v1/btc/test3/addrs/${address}/balance`
@@ -64,7 +70,7 @@ export const getTestnetBalance = async (address) => {
 	}
 }
 
-export const getTransactions = async (address) => {
+const getTransactions = async (address) => {
 	try {
 		const response = await axios.get(
 			`https://api.blockcypher.com/v1/btc/test3/addrs/${address}/full`
@@ -85,7 +91,7 @@ export const getTransactions = async (address) => {
 	}
 }
 
-export const generateUnusedadd = async (mnemonic) => {
+const generateUnusedadd = async (mnemonic) => {
 	db.get(
 		`SELECT * FROM wallets WHERE mnemonic = ?`,
 		[mnemonic],
@@ -112,4 +118,13 @@ export const generateUnusedadd = async (mnemonic) => {
 			}
 		}
 	)
+}
+
+module.exports = {
+	createWallet,
+	importWallet,
+	listWallets,
+	getBalance,
+	getTransactions,
+	generateUnusedadd,
 }
