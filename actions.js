@@ -3,7 +3,7 @@ const bitcoin = require("bitcoinjs-lib")
 const hdkey = require("hdkey")
 const axios = require("axios")
 
-const createWallet = async (db) => {
+const createWallet = async (db, wallet_name) => {
 	const mnemonic = bip39.generateMnemonic()
 	const seed = await bip39.mnemonicToSeed(mnemonic)
 	const root = hdkey.fromMasterSeed(seed, bitcoin.networks.testnet)
@@ -13,8 +13,8 @@ const createWallet = async (db) => {
 		network: bitcoin.networks.testnet,
 	}).address
 	await db.run(
-		"INSERT INTO wallets (mnemonic, address) VALUES (?, ?)",
-		[mnemonic, address],
+		"INSERT INTO wallets (name, mnemonic, address) VALUES (?, ?, ?)",
+		[wallet_name, mnemonic, address],
 		function (err) {
 			if (err) console.log(err)
 			else {
