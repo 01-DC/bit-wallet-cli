@@ -3,6 +3,22 @@ const bitcoin = require("bitcoinjs-lib")
 const hdkey = require("hdkey")
 const sqlite3 = require("sqlite3")
 
+const db = new sqlite3.Database(
+	"./wallets.sqlite",
+	sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
+	(err) => {
+		if (err) {
+			console.log(err)
+		} else {
+			console.log("Connected to the database")
+		}
+	}
+)
+
+db.run(
+	"CREATE TABLE IF NOT EXISTS wallets (id INTEGER PRIMARY KEY, mnemonic TEXT, address TEXT)"
+)
+
 export const createWallet = async () => {
 	const mnemonic = bip39.generateMnemonic()
 	const seed = await bip39.mnemonicToSeed(mnemonic)
@@ -20,7 +36,7 @@ export const createWallet = async () => {
 	console.log(`Mnemonic: ${mnemonic}`)
 }
 
-export const importWallet = async(mnemonic) => {
+export const importWallet = async (mnemonic) => {
 	if (!bip39.validateMnemonic(mnemonic)) {
 		console.log("Invalid mnemonic!")
 		return
@@ -37,4 +53,11 @@ export const importWallet = async(mnemonic) => {
 		address,
 	])
 	console.log(`Imported Wallet Address: ${address}`)
+}
+
+export const listWallets = async () => {
+	db.all("SELECT * FROM wallets", [], (err, rows) => {
+		if (err) console.log(err)
+		else console.log(rows)
+	})
 }
