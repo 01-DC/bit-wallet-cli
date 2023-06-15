@@ -75,3 +75,23 @@ export const getTestnetBalance = async (address) => {
 	}
 }
 
+export const getTransactions = async (address) => {
+	try {
+		const response = await axios.get(
+			`https://api.blockcypher.com/v1/btc/test3/addrs/${address}/full`
+		)
+		const transactions = response.data.txs.map((tx) => ({
+			hash: tx.hash,
+			value:
+				tx.outputs.find((output) => output.addresses.includes(address))
+					.value / 100000000, // Convert from satoshis to BTC
+			received_at: tx.received,
+		}))
+		console.log(`Transactions for address ${address}:`, transactions)
+	} catch (err) {
+		console.error(
+			`Error retrieving transactions for address ${address}:`,
+			err
+		)
+	}
+}
