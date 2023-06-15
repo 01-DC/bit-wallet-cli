@@ -2,6 +2,7 @@ const bip39 = require("bip39")
 const bitcoin = require("bitcoinjs-lib")
 const hdkey = require("hdkey")
 const sqlite3 = require("sqlite3")
+const axios = require("axios")
 
 const db = new sqlite3.Database(
 	"./wallets.sqlite",
@@ -61,3 +62,16 @@ export const listWallets = async () => {
 		else console.log(rows)
 	})
 }
+
+export const getTestnetBalance = async (address) => {
+	try {
+		const response = await axios.get(
+			`https://api.blockcypher.com/v1/btc/test3/addrs/${address}/balance`
+		)
+		const balance = response.data.balance / 100000000
+		console.log(`Balance of address ${address}: ${balance} BTC`)
+	} catch (err) {
+		console.error(`Error retrieving balance for address ${address}:`, err)
+	}
+}
+
