@@ -12,10 +12,16 @@ export const createWallet = async () => {
 		pubkey: addrNode.publicKey,
 		network: bitcoin.networks.testnet,
 	}).address
-	await db.run("INSERT INTO wallets (mnemonic, address) VALUES (?, ?)", [
-		mnemonic,
-		address,
-	])
+	await db.run(
+		"INSERT INTO wallets (mnemonic, address) VALUES (?, ?)",
+		[mnemonic, address],
+		function (err) {
+			if (err) console.log(err)
+			else {
+				console.log(`New Wallet created with ID: ${this.lastID}`)
+			}
+		}
+	)
 	console.log(`New Wallet's First Address: ${address}`)
 	console.log(`Mnemonic: ${mnemonic}`)
 }
