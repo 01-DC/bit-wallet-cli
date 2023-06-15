@@ -40,5 +40,7 @@ function run() {
 	} else if (command == "unused") {
 		wallet_id = args["id"]
 		actions.getTransactions(db, wallet_id)
-	}
+	} else {
+        
+    }
 }
