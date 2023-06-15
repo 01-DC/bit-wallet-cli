@@ -8,28 +8,37 @@ const db = new sqlite3.Database(
 	(err) => {
 		if (err) {
 			console.log(err)
+		} else {
+			console.log("Connected to database")
 		}
 	}
 )
 
 db.run(
-	"CREATE TABLE IF NOT EXISTS wallets (id INTEGER PRIMARY KEY, mnemonic TEXT, address TEXT, used_add INTEGER Default 1)"
+	"CREATE TABLE IF NOT EXISTS wallets (id INTEGER PRIMARY KEY, mnemonic TEXT, address TEXT, used_add INTEGER Default 1)",
+	[],
+	(err) => {
+		if (err) console.log(err)
+		else run()
+	}
 )
 
-// console.log(args)
-command = args._[0]
-if (command == "create") actions.createWallet(db)
-else if (command == "import") {
-	mnemonic_str = args["m"]
-	actions.importWallet(db, mnemonic_str)
-} else if (command == "list") actions.listWallets(db)
-else if (command == "balance") {
-	wallet_id = args["id"]
-	actions.getBalance(db, wallet_id)
-} else if (command == "transactions") {
-	wallet_id = args["id"]
-	actions.getTransactions(db, wallet_id)
-} else if (command == "unused") {
-	wallet_id = args["id"]
-	actions.getTransactions(db, wallet_id)
+function run() {
+	// console.log(args)
+	command = args._[0]
+	if (command == "create") actions.createWallet(db)
+	else if (command == "import") {
+		mnemonic_str = args["m"]
+		actions.importWallet(db, mnemonic_str)
+	} else if (command == "list") actions.listWallets(db)
+	else if (command == "balance") {
+		wallet_id = args["id"]
+		actions.getBalance(db, wallet_id)
+	} else if (command == "transactions") {
+		wallet_id = args["id"]
+		actions.getTransactions(db, wallet_id)
+	} else if (command == "unused") {
+		wallet_id = args["id"]
+		actions.getTransactions(db, wallet_id)
+	}
 }
