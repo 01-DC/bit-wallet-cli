@@ -95,3 +95,32 @@ export const getTransactions = async (address) => {
 		)
 	}
 }
+
+export const generateUnusedadd = async (mnemonic) => {
+	db.get(
+		`SELECT * FROM wallets WHERE mnemonic = ?`,
+		[mnemonic],
+		async (err, row) => {
+			if (err) {
+				console.log(err)
+			} else {
+				const used = row.used + 1
+				const seed = await bip39.mnemonicToSeed(mnemonic)
+				const root = hdkey.fromMasterSeed(
+					seed,
+					bitcoin.networks.testnet
+				)
+				const addrNode = root.derive(`m/44'/1'/0'/0/${used}`)
+				const address = bitcoin.payments.p2pkh({
+					pubkey: addrNode.publicKey,
+					network: bitcoin.networks.testnet,
+				}).address
+				await db.run("UPDATE wallets SET used = ? WHERE mnemonic = ?", [
+					used,
+					mnemonic,
+				])
+				console.log(`Unused Wallet Address: ${address}`)
+			}
+		}
+	)
+}
