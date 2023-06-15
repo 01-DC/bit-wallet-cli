@@ -58,48 +58,75 @@ const listWallets = async (db) => {
 	})
 }
 
-const getBalance = async (address) => {
-	try {
-		const response = await axios.get(
-			`https://api.blockcypher.com/v1/btc/test3/addrs/${address}/balance`
-		)
-		const balance = response.data.balance / 100000000
-		console.log(`Balance of address ${address}: ${balance} BTC`)
-	} catch (err) {
-		console.error(`Error retrieving balance for address ${address}:`, err)
-	}
-}
-
-const getTransactions = async (address) => {
-	try {
-		const response = await axios.get(
-			`https://api.blockcypher.com/v1/btc/test3/addrs/${address}/full`
-		)
-		const transactions = response.data.txs.map((tx) => ({
-			hash: tx.hash,
-			value:
-				tx.outputs.find((output) => output.addresses.includes(address))
-					.value / 100000000, // Convert from satoshis to BTC
-			received_at: tx.received,
-		}))
-		console.log(`Transactions for address ${address}:`, transactions)
-	} catch (err) {
-		console.error(
-			`Error retrieving transactions for address ${address}:`,
-			err
-		)
-	}
-}
-
-const generateUnusedadd = async (mnemonic) => {
+const getBalance = async (db, wallet_id) => {
 	db.get(
-		`SELECT * FROM wallets WHERE mnemonic = ?`,
-		[mnemonic],
+		"SELECT * FROM wallets WHERE id=?",
+		[wallet_id],
+		async (err, row) => {
+			if (err) console.log(err)
+			else {
+				try {
+					const response = await axios.get(
+						`https://api.blockcypher.com/v1/btc/test3/addrs/${row.address}/balance`
+					)
+					const balance = response.data.balance / 100000000
+					console.log(
+						`Balance of wallet ${row.id} with last address ${address}: ${balance} BTC`
+					)
+				} catch (err) {
+					console.error(
+						`Error retrieving balance for address ${address}:`,
+						err
+					)
+				}
+			}
+		}
+	)
+}
+
+const getTransactions = async (db, wallet_id) => {
+	db.get(
+		"SELECT * FROM wallets WHERE id=?",
+		[wallet_id],
+		async (err, row) => {
+			if (err) console.log(err)
+			else {
+				try {
+					const response = await axios.get(
+						`https://api.blockcypher.com/v1/btc/test3/addrs/${row.address}/full`
+					)
+					const transactions = response.data.txs.map((tx) => ({
+						hash: tx.hash,
+						value:
+							tx.outputs.find((output) =>
+								output.addresses.includes(address)
+							).value / 100000000, // Convert from satoshis to BTC
+						received_at: tx.received,
+					}))
+					console.log(
+						`Transactions for wallet ${row.id} with last address ${address}:`,
+						transactions
+					)
+				} catch (err) {
+					console.error(
+						`Error retrieving transactions for address ${address}:`,
+						err
+					)
+				}
+			}
+		}
+	)
+}
+
+const generateUnusedadd = async (db, wallet_id) => {
+	db.get(
+		`SELECT * FROM wallets WHERE id = ?`,
+		[wallet_id],
 		async (err, row) => {
 			if (err) {
 				console.log(err)
 			} else {
-				const used = row.used + 1
+				const used = row.used_add + 1
 				const seed = await bip39.mnemonicToSeed(mnemonic)
 				const root = hdkey.fromMasterSeed(
 					seed,
@@ -110,11 +137,13 @@ const generateUnusedadd = async (mnemonic) => {
 					pubkey: addrNode.publicKey,
 					network: bitcoin.networks.testnet,
 				}).address
-				await db.run("UPDATE wallets SET used = ? WHERE mnemonic = ?", [
+				await db.run("UPDATE wallets SET used_add = ? WHERE id = ?", [
 					used,
-					mnemonic,
+					wallet_id,
 				])
-				console.log(`Unused Wallet Address: ${address}`)
+				console.log(
+					`Unused address for wallet ${wallet_id}: ${address}`
+				)
 			}
 		}
 	)

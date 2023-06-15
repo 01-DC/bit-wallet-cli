@@ -23,3 +23,13 @@ else if (command == "import") {
 	mnemonic_str = args["m"]
 	actions.importWallet(db, mnemonic_str)
 } else if (command == "list") actions.listWallets(db)
+else if (command == "balance") {
+	wallet_id = args["id"]
+	actions.getBalance(db, wallet_id)
+} else if (command == "transactions") {
+	wallet_id = args["id"]
+	actions.getTransactions(db, wallet_id)
+} else if (command == "unused") {
+	wallet_id = args["id"]
+	actions.getTransactions(db, wallet_id)
+}
