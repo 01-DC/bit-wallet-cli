@@ -16,17 +16,21 @@ const createWallet = async (db, wallet_name) => {
 		"INSERT INTO wallets (name, mnemonic, address) VALUES (?, ?, ?)",
 		[wallet_name, mnemonic, address],
 		function (err) {
-			if (err) console.log(err)
-			else {
-				console.log(`New Wallet created with ID: ${this.lastID}`)
+			if (err) {
+				console.log(err)
+				console.log(
+					`You already have a wallet saved with name ${wallet_name}`
+				)
+			} else {
+				console.log(`New Wallet created with name ${wallet_name}`)
+				console.log(`New Wallet's First Address: ${address}`)
+				console.log(`Mnemonic: ${mnemonic}`)
 			}
 		}
 	)
-	console.log(`New Wallet's First Address: ${address}`)
-	console.log(`Mnemonic: ${mnemonic}`)
 }
 
-const importWallet = async (db, mnemonic) => {
+const importWallet = async (db, wallet_name, mnemonic) => {
 	if (!bip39.validateMnemonic(mnemonic)) {
 		console.log("Invalid mnemonic!")
 		return
@@ -39,16 +43,20 @@ const importWallet = async (db, mnemonic) => {
 		network: bitcoin.networks.testnet,
 	}).address
 	await db.run(
-		"INSERT INTO wallets (mnemonic, address) VALUES (?, ?)",
-		[mnemonic, address],
+		"INSERT INTO wallets (name, mnemonic, address) VALUES (?, ?, ?)",
+		[wallet_name, mnemonic, address],
 		function (err) {
-			if (err) console.log(err)
-			else {
-				console.log(`New Wallet imported with ID: ${this.lastID}`)
+			if (err) {
+				console.log(err)
+				console.log(
+					`You already have a wallet saved with name ${wallet_name}`
+				)
+			} else {
+				console.log(`New Wallet imported with name: ${wallet_name}`)
+				console.log(`Imported Wallet Address: ${address}`)
 			}
 		}
 	)
-	console.log(`Imported Wallet Address: ${address}`)
 }
 
 const listWallets = async (db) => {
@@ -58,10 +66,10 @@ const listWallets = async (db) => {
 	})
 }
 
-const getBalance = async (db, wallet_id) => {
+const getBalance = async (db, wallet_name) => {
 	db.get(
-		"SELECT * FROM wallets WHERE id=?",
-		[wallet_id],
+		"SELECT * FROM wallets WHERE name=?",
+		[wallet_name],
 		async (err, row) => {
 			if (err) console.log(err)
 			else {
@@ -84,10 +92,10 @@ const getBalance = async (db, wallet_id) => {
 	)
 }
 
-const getTransactions = async (db, wallet_id) => {
+const getTransactions = async (db, wallet_name) => {
 	db.get(
-		"SELECT * FROM wallets WHERE id=?",
-		[wallet_id],
+		"SELECT * FROM wallets WHERE name=?",
+		[wallet_name],
 		async (err, row) => {
 			if (err) console.log(err)
 			else {
@@ -118,10 +126,10 @@ const getTransactions = async (db, wallet_id) => {
 	)
 }
 
-const generateUnusedadd = async (db, wallet_id) => {
+const generateUnusedadd = async (db, wallet_name) => {
 	db.get(
-		`SELECT * FROM wallets WHERE id = ?`,
-		[wallet_id],
+		`SELECT * FROM wallets WHERE name = ?`,
+		[wallet_name],
 		async (err, row) => {
 			if (err) {
 				console.log(err)
