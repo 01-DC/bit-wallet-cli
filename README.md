@@ -26,7 +26,7 @@ The script supports following commands:
 -   `create "wallet_name"`
 -   `import "wallet name" "BIP39 mnemonic"`
 -   `list`
--   ` balance "wallet name`
+-   `balance "wallet name`
 -   `transactions "wallet name"`
 -   `unused "wallet name"`
 
@@ -39,3 +39,13 @@ Description for each command:
 -   transactions : Show all transactions of chosen wallet by it's name.
 -   unused : Generate an unused address for the chosen wallet by it's name.
 -   man : Displays the command manual.
+
+Some testing inputs:
+
+-   `node wallet man`
+-   `node wallet create w1`
+-   `node wallet import w2 "cause promote circle message level material hammer drill noodle title believe duty"`
+-   `node wallet list`
+-   `node wallet balance w1`
+-   `node wallet transactions w2`
+-   `node wallet unused w1`
