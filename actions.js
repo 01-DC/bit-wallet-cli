@@ -99,8 +99,10 @@ const getTransactions = async (db, wallet_name) => {
 		"SELECT * FROM wallets WHERE name=?",
 		[wallet_name],
 		async (err, row) => {
-			if (err) console.log(err)
-			else {
+			if (err || !row) {
+				// console.log(err)
+				console.log(`No wallets saved with given name ${wallet_name}`)
+			} else {
 				try {
 					const response = await axios.get(
 						`https://api.blockcypher.com/v1/btc/test3/addrs/${row.address}/full`
@@ -109,17 +111,17 @@ const getTransactions = async (db, wallet_name) => {
 						hash: tx.hash,
 						value:
 							tx.outputs.find((output) =>
-								output.addresses.includes(address)
+								output.addresses.includes(row.address)
 							).value / 100000000, // Convert from satoshis to BTC
 						received_at: tx.received,
 					}))
 					console.log(
-						`Transactions for wallet ${row.id} with last address ${address}:`,
+						`Transactions for wallet ${row.name} with last address ${row.address}:`,
 						transactions
 					)
 				} catch (err) {
 					console.error(
-						`Error retrieving transactions for address ${address}:`,
+						`Error retrieving transactions for wallet ${row.name}:`,
 						err
 					)
 				}
@@ -128,16 +130,17 @@ const getTransactions = async (db, wallet_name) => {
 	)
 }
 
-const generateUnusedadd = async (db, wallet_name) => {
+const generateUnusedAdd = async (db, wallet_name) => {
 	db.get(
 		`SELECT * FROM wallets WHERE name = ?`,
 		[wallet_name],
 		async (err, row) => {
-			if (err) {
-				console.log(err)
+			if (err || !row) {
+				// console.log(err)
+				console.log(`No wallets saved with given name ${wallet_name}`)
 			} else {
 				const used = row.used_add + 1
-				const seed = await bip39.mnemonicToSeed(mnemonic)
+				const seed = await bip39.mnemonicToSeed(row.mnemonic)
 				const root = hdkey.fromMasterSeed(
 					seed,
 					bitcoin.networks.testnet
@@ -147,12 +150,15 @@ const generateUnusedadd = async (db, wallet_name) => {
 					pubkey: addrNode.publicKey,
 					network: bitcoin.networks.testnet,
 				}).address
-				await db.run("UPDATE wallets SET used_add = ? WHERE id = ?", [
-					used,
-					wallet_id,
-				])
+				await db.run(
+					"UPDATE wallets SET used_add = ? WHERE name = ?",
+					[used, wallet_name],
+					(err) => {
+						if (err) console.log(err)
+					}
+				)
 				console.log(
-					`Unused address for wallet ${wallet_id}: ${address}`
+					`Unused address for wallet ${wallet_name}: ${address}`
 				)
 			}
 		}
@@ -165,5 +171,5 @@ module.exports = {
 	listWallets,
 	getBalance,
 	getTransactions,
-	generateUnusedadd,
+	generateUnusedAdd,
 }

@@ -68,7 +68,7 @@ function run() {
 		} else if (command == "transactions") {
 			actions.getTransactions(db, inp1)
 		} else if (command == "unused") {
-			actions.getTransactions(db, inp1)
+			actions.generateUnusedAdd(db, inp1)
 		} else {
 			console.log("Invalid command. Use man to see manual.")
 		}
