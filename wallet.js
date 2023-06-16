@@ -37,13 +37,13 @@ COMMANDS
   man
 
 DESCRIPTION
-  create : create a new wallet with given name. Enclose in double quotes if contains spaces
-  import : import a new wallet into database with given name from given mnemonic string. Enclose in double quotes
-  list : list all wallets stored in the database currently
-  balance : show balance of chosen wallet by it's name
-  transactions : show all transactions of chosen wallet by it's name
-  unused : generate an unused address for the chosen wallet by it's name
-  man : display this command manual
+  create : Create a new wallet with given name. Enclose in double quotes if contains spaces.
+  import : Import a new wallet into database with given name from given mnemonic string. Enclose in double quotes.
+  list : List all wallets stored in the database currently.
+  balance : Show balance of chosen wallet by it's name.
+  transactions : Show all transactions of chosen wallet by it's name.
+  unused : Generate an unused address for the chosen wallet by it's name.
+  man : Display this command manual.
 `
 
 function run() {
