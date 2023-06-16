@@ -71,19 +71,21 @@ const getBalance = async (db, wallet_name) => {
 		"SELECT * FROM wallets WHERE name=?",
 		[wallet_name],
 		async (err, row) => {
-			if (err) console.log(err)
-			else {
+			if (err || !row) {
+				// console.log(err)
+				console.log(`No wallets saved with given name ${wallet_name}`)
+			} else {
 				try {
 					const response = await axios.get(
 						`https://api.blockcypher.com/v1/btc/test3/addrs/${row.address}/balance`
 					)
 					const balance = response.data.balance / 100000000
 					console.log(
-						`Balance of wallet ${row.id} with last address ${address}: ${balance} BTC`
+						`Balance of wallet ${row.name} with last address ${row.address}: ${balance} BTC`
 					)
 				} catch (err) {
 					console.error(
-						`Error retrieving balance for address ${address}:`,
+						`Error retrieving balance for wallet ${row.name}:`,
 						err
 					)
 				}
