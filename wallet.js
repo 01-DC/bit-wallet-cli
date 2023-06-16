@@ -25,7 +25,7 @@ db.run(
 
 help_text = `
 USAGE
-  $ node index.js command [ARGS]
+  $ node wallet command [ARGS]
 
 COMMANDS
   create "wallet name"
@@ -52,23 +52,23 @@ function run() {
 	inp1 = args._[1]
 	inp2 = args._[2]
 
-	if (command != "list" && (!inp1 || inp1.length == 0))
+	if (command == "list") {
+		actions.listWallets(db)
+	} else if (command == "man") {
+		console.log(help_text)
+	} else if (!inp1 || inp1.length == 0)
 		console.log("Invalid arguments. Use man to see manual.")
 	else {
 		if (command == "create") {
 			actions.createWallet(db, inp1)
 		} else if (command == "import") {
 			actions.importWallet(db, inp1, inp2)
-		} else if (command == "list") {
-			actions.listWallets(db)
 		} else if (command == "balance") {
 			actions.getBalance(db, inp1)
 		} else if (command == "transactions") {
 			actions.getTransactions(db, inp1)
 		} else if (command == "unused") {
 			actions.getTransactions(db, inp1)
-		} else if (command == "man") {
-			console.log(help_text)
 		} else {
 			console.log("Invalid command. Use man to see manual.")
 		}
